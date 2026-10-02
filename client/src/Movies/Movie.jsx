@@ -5,7 +5,7 @@ export default class Movie extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      movie: null
+      movie: null, error: ""
     };
   }
 
@@ -13,17 +13,18 @@ export default class Movie extends React.Component {
     this.fetchMovie(this.props.match.params.id);
   }
 
-  componentWillReceiveProps(newProps) {
-    if (this.props.match.params.id !== newProps.match.params.id) {
-      this.fetchMovie(newProps.match.params.id);
+  componentDidUpdate(previousProps) {
+    if (this.props.match.params.id !== previousProps.match.params.id) {
+      this.fetchMovie(this.props.match.params.id);
     }
   }
 
   fetchMovie = id => {
+    this.setState({movie:null,error:""});
     axios
-      .get(`http://localhost:5000/api/movies/${id}`)
+      .get(`/api/movies/${id}`)
       .then(res => this.setState({ movie: res.data }))
-      .catch(err => console.log(err.response));
+      .catch(() => this.setState({error: "This movie could not be loaded."}));
   };
 
   saveMovie = () => {
@@ -32,6 +33,7 @@ export default class Movie extends React.Component {
   };
 
   render() {
+    if (this.state.error) return <p role="alert">{this.state.error}</p>;
     if (!this.state.movie) {
       return <div>Loading movie information...</div>;
     }
@@ -39,9 +41,9 @@ export default class Movie extends React.Component {
     return (
       <div className="save-wrapper">
         <MovieCard movie={this.state.movie} />
-        <div className="save-button" onClick={this.saveMovie}>
+        <button className="save-button" onClick={this.saveMovie}>
           Save
-        </div>
+        </button>
       </div>
     );
   }
