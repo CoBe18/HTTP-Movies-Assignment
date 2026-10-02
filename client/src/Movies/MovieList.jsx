@@ -6,20 +6,21 @@ export default class MovieList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      movies: []
+      movies: [], error: ""
     };
   }
 
   componentDidMount() {
     axios
-      .get("http://localhost:5000/api/movies")
+      .get("/api/movies")
       .then(res => this.setState({ movies: res.data }))
-      .catch(err => console.log(err.response));
+      .catch(() => this.setState({error: "Movies could not be loaded. Please try again."}));
   }
 
   render() {
     return (
       <div className="movie-list">
+        {this.state.error && <p role="alert">{this.state.error}</p>}
         {this.state.movies.map(movie => (
           <MovieDetails key={movie.id} movie={movie} />
         ))}
